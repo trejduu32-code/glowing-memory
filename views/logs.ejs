@@ -1,0 +1,77 @@
+<div class="header-with-back">
+    <a href="/" class="btn btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+    <h1><i class="fas fa-history"></i> Logs for <%= job.name %></h1>
+</div>
+
+<div class="card">
+    <div class="job-info">
+        <p><strong><i class="fas fa-link"></i> URL:</strong> <%= job.url %></p>
+        <p><strong><i class="fas fa-clock"></i> Schedule:</strong> <code><%= job.schedule %></code></p>
+        <p><strong><i class="fas fa-power-off"></i> Status:</strong> 
+            <span class="status-badge <%= job.enabled ? 'status-active' : 'status-inactive' %>">
+                <i class="fas <%= job.enabled ? 'fa-play' : 'fa-pause' %>"></i>
+                <%= job.enabled ? 'Active' : 'Inactive' %>
+            </span>
+        </p>
+    </div>
+</div>
+
+<div class="card">
+    <h2><i class="fas fa-list-alt"></i> Execution Logs</h2>
+    
+    <% if (logs.length === 0) { %>
+        <div class="empty-state">
+            <i class="fas fa-file-alt"></i>
+            <h3>No execution logs yet</h3>
+            <p>This job hasn't run yet or logs were cleared.</p>
+        </div>
+    <% } else { %>
+        <div class="logs-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-clock"></i> Time</th>
+                        <th><i class="fas fa-code"></i> Status</th>
+                        <th><i class="fas fa-stopwatch"></i> Response Time</th>
+                        <th><i class="fas fa-exclamation-circle"></i> Error</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% logs.forEach(log => { %>
+                        <tr>
+                            <td><%= new Date(log.created_at).toLocaleString() %></td>
+                            <td>
+                                <% if (log.status === 0) { %>
+                                    <span class="status-code status-error">
+                                        <i class="fas fa-unlink"></i> Network Error
+                                    </span>
+                                <% } else { %>
+                                    <span class="status-code <%= log.status >= 200 && log.status < 400 ? 'status-success' : 'status-error' %>">
+                                        <%= log.status %>
+                                    </span>
+                                <% } %>
+                            </td>
+                            <td><%= log.response_time %>ms</td>
+                            <td class="error-cell">
+                                <% if (log.error_message) { %>
+                                    <code><%= log.error_message %></code>
+                                <% } else { %>
+                                    <span class="no-error">-</span>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+</div>
+
+<% if (unlimitedMode) { %>
+<div class="card info-card">
+    <h3><i class="fas fa-infinity"></i> Unlimited Mode Active</h3>
+    <p>This job runs without rate limits or concurrency restrictions.</p>
+</div>
+<% } %>
